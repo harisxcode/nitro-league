@@ -33,16 +33,29 @@ export class NetworkClient {
   public onGoalEvent?: (data: any) => void;
   public onMatchCountdown?: (seconds: number) => void;
   public onChat?: (data: { sender: string; team: Team; text: string }) => void;
+  public onError?: (errorMsg: string) => void;
 
   public connect(
     roomId: string,
     playerName: string,
     mode: GameMode,
     carBody: string,
-    boostColor: string
+    boostColor: string,
+    customServerUrl?: string
   ) {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}`;
+    let wsUrl: string;
+    if (customServerUrl && customServerUrl.trim().length > 0) {
+      wsUrl = customServerUrl.trim();
+      if (!wsUrl.startsWith('ws://') && !wsUrl.startsWith('wss://')) {
+        wsUrl = `wss://${wsUrl}`;
+      }
+    } else if (window.location.hostname.includes('github.io')) {
+      // Deployed on GitHub Pages static hosting: use remote Cloud Run backend
+      wsUrl = 'wss://ais-dev-llprch63e6syz2pefmor3h-131130976640.us-west2.run.app';
+    } else {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      wsUrl = `${protocol}//${window.location.host}`;
+    }
 
     try {
       this.ws = new WebSocket(wsUrl);
@@ -100,9 +113,11 @@ export class NetworkClient {
 
       this.ws.onerror = (err) => {
         console.error('WebSocket connection error:', err);
+        if (this.onError) this.onError('Multiplayer server connection failed. Playing in local offline mode.');
       };
-    } catch (e) {
+    } catch (e: any) {
       console.error('WebSocket creation error:', e);
+      if (this.onError) this.onError(e?.message || 'WebSocket creation error');
     }
   }
 

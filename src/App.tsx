@@ -571,6 +571,10 @@ export default function App() {
         setChatFeed((prev) => [...prev.slice(-6), c]);
       };
 
+      netClient.onError = (msg) => {
+        setChatFeed((prev) => [...prev.slice(-6), { sender: 'Server', text: msg, team: 'neutral' }]);
+      };
+
       netClient.connect(roomId, playerName, mode, customization.body, customization.boostColor);
     }
 
