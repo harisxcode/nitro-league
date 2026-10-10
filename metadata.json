@@ -1,0 +1,6 @@
+{
+  "name": "Nitro League - 3D Rocket Car Sports",
+  "description": "High-octane 3D rocket car arena with Soccer and Basketball Hoops modes, online multiplayer and offline bot matches, authentic aerial physics, and customizable vehicles.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
